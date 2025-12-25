@@ -6,6 +6,12 @@ def test_empty_string_returns_empty_list():
     assert tokenize("") == []
 
 
+def test_whitespace_only_returns_empty_list():
+    assert tokenize("   ") == []
+    assert tokenize("\n\n") == []
+    assert tokenize("  \n\n  ") == []
+
+
 def test_plain_paragraph():
     result = tokenize("Hello world")
     assert len(result) == 1
@@ -63,3 +69,23 @@ def test_header_level_seven_becomes_paragraph():
     assert len(result) == 1
     assert isinstance(result[0], Paragraph)
     assert result[0].content == "####### Seven hashes"
+
+
+def test_single_newline_stays_in_paragraph():
+    result = tokenize("Line one\nLine two")
+    assert len(result) == 1
+    assert isinstance(result[0], Paragraph)
+    assert result[0].content == "Line one\nLine two"
+
+
+def test_multiple_blank_lines():
+    result = tokenize("First\n\n\n\nSecond")
+    assert len(result) == 2
+    assert result[0].content == "First"
+    assert result[1].content == "Second"
+
+
+def test_leading_trailing_whitespace_ignored():
+    result = tokenize("\n\nContent\n\n")
+    assert len(result) == 1
+    assert result[0].content == "Content"
