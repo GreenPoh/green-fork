@@ -1,3 +1,6 @@
+from akidocs_core.tokens import Header, Paragraph
+
+
 def tokenize(text: str) -> list:
     if text == "":
         return []
@@ -19,8 +22,8 @@ def tokenize(text: str) -> list:
                     break
             level = min(level, 6)
             content = block[level:].strip()
-            tokens.append({"type": "header", "level": level, "content": content})
+            tokens.append(Header(level=level, content=content))
         else:
-            tokens.append({"type": "paragraph", "content": block})
+            tokens.append(Paragraph(content=block))
 
     return tokens
