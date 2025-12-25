@@ -14,14 +14,9 @@ def tokenize(text: str) -> list:
             continue
 
         if block.startswith("#"):
-            level = 0
-            for char in block:
-                if char == "#":
-                    level += 1
-                else:
-                    break
-            level = min(level, 6)
-            content = block[level:].strip()
+            stripped = block.lstrip("#")
+            level = min(len(block) - len(stripped), 6)
+            content = stripped.strip()
             tokens.append(Header(level=level, content=content))
         else:
             tokens.append(Paragraph(content=block))
