@@ -34,3 +34,6 @@ htmlcov/
 
 # mypy
 .mypy_cache/
+
+# Development artifacts
+*.pdf
