@@ -1,7 +1,7 @@
-from akidocs_core.tokens import Header, Paragraph
+from akidocs_core.tokens import Header, Paragraph, Token
 
 
-def tokenize(text: str) -> list:
+def tokenize(text: str) -> list[Token]:
     if text == "":
         return []
 

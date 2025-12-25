@@ -1,6 +1,6 @@
 from fpdf import FPDF
 
-from akidocs_core.tokens import Header, Paragraph
+from akidocs_core.tokens import Header, Paragraph, Token
 
 # Typography (points - standard typographic unit)
 FONT_FAMILY = "Times"
@@ -34,7 +34,7 @@ def _render_paragraph(pdf: FPDF, content: str) -> None:
     pdf.ln(_pt_to_mm(PARAGRAPH_MARGIN_AFTER))
 
 
-def render_pdf(tokens: list) -> bytes:
+def render_pdf(tokens: list[Token]) -> bytes:
     pdf = FPDF()
     pdf.add_page()
 
