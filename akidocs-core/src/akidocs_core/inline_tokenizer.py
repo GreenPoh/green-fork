@@ -7,46 +7,42 @@ DELIMITERS: list[tuple[str, frozenset[Style]]] = [
 ]
 
 
-def _try_parse_styled(text: str, pos: int) -> tuple[InlineText, int] | None:
-    """Try to parse a styled span starting at pos.
-
-    Returns (token, new_position) if a complete styled span is found, None otherwise.
-    Tries delimiters in order (longest first).
-    """
-    for delim, styles in DELIMITERS:
-        if text[pos : pos + len(delim)] != delim:
-            continue
-
-        end = text.find(delim, pos + len(delim))
-        if end != -1:
-            content = text[pos + len(delim) : end]
-            return InlineText(content=content, styles=styles), end + len(delim)
-
-        # Delimiter matched but no closing - don't try shorter delimiters
-        return None
-
-    return None
-
-
-def tokenize_inline(text: str) -> list[InlineText]:
+def tokenize_inline(
+    text: str, inherited_styles: frozenset[Style] = frozenset()
+) -> list[InlineText]:
     tokens: list[InlineText] = []
     current = ""
     i = 0
 
     while i < len(text):
-        result = _try_parse_styled(text, i)
+        matched = False
 
-        if result is not None:
+        for delim, styles in DELIMITERS:
+            if text[i : i + len(delim)] != delim:
+                continue
+
+            end = text.find(delim, i + len(delim))
+            if end == -1:
+                break
+
             if current:
-                tokens.append(InlineText(content=current))
+                tokens.append(InlineText(content=current, styles=inherited_styles))
                 current = ""
-            token, i = result
-            tokens.append(token)
-        else:
+
+            inner_content = text[i + len(delim) : end]
+            combined_styles = inherited_styles | styles
+            inner_tokens = tokenize_inline(inner_content, combined_styles)
+            tokens.extend(inner_tokens)
+
+            i = end + len(delim)
+            matched = True
+            break
+
+        if not matched:
             current += text[i]
             i += 1
 
     if current:
-        tokens.append(InlineText(content=current))
+        tokens.append(InlineText(content=current, styles=inherited_styles))
 
     return tokens
