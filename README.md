@@ -12,6 +12,8 @@ Takes in a Markdown file, parses it, and outputs it as a PDF
 - Paragraphs
 - Inline formatting
   - `*Italics*` is *Italics*
+  - `**Bold**` is **Bold**
+  - Does not currently compose inline styles additively
 - Usable as a CLI tool (`aki`)
   - `-h` or `--help` for help information
   - `-v` or `--version` for version information
