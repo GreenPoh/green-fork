@@ -10,6 +10,8 @@ Takes in a Markdown file, parses it, and outputs it as a PDF
 
 - Headers (levels 1-6)
 - Paragraphs
+- Inline formatting
+  - `*Italics*` is *Italics*
 - Usable as a CLI tool (`aki`)
   - `-h` or `--help` for help information
   - `-v` or `--version` for version information
