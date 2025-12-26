@@ -1,5 +1,5 @@
 from akidocs_core.tokenizer import tokenize
-from akidocs_core.tokens import Header, Italic, Paragraph, Text
+from akidocs_core.tokens import Header, InlineText, Italic, Paragraph
 
 
 def test_empty_string_returns_empty_list():
@@ -16,7 +16,7 @@ def test_plain_paragraph():
     result = tokenize("Hello world")
     assert len(result) == 1
     assert isinstance(result[0], Paragraph)
-    assert result[0].content == [Text(content="Hello world")]
+    assert result[0].content == [InlineText(content="Hello world")]
 
 
 def test_header_level_one():
@@ -24,16 +24,16 @@ def test_header_level_one():
     assert len(result) == 1
     assert isinstance(result[0], Header)
     assert result[0].level == 1
-    assert result[0].content == [Text(content="Hello")]
+    assert result[0].content == [InlineText(content="Hello")]
 
 
 def test_multiple_paragraphs():
     result = tokenize("First paragraph\n\nSecond paragraph")
     assert len(result) == 2
     assert isinstance(result[0], Paragraph)
-    assert result[0].content == [Text(content="First paragraph")]
+    assert result[0].content == [InlineText(content="First paragraph")]
     assert isinstance(result[1], Paragraph)
-    assert result[1].content == [Text(content="Second paragraph")]
+    assert result[1].content == [InlineText(content="Second paragraph")]
 
 
 def test_header_levels():
@@ -45,15 +45,15 @@ def test_header_levels():
 def test_windows_line_endings():
     result = tokenize("First paragraph\r\n\r\nSecond paragraph")
     assert len(result) == 2
-    assert result[0].content == [Text(content="First paragraph")]
-    assert result[1].content == [Text(content="Second paragraph")]
+    assert result[0].content == [InlineText(content="First paragraph")]
+    assert result[1].content == [InlineText(content="Second paragraph")]
 
 
 def test_header_requires_space():
     result = tokenize("#NoSpace")
     assert len(result) == 1
     assert isinstance(result[0], Paragraph)
-    assert result[0].content == [Text(content="#NoSpace")]
+    assert result[0].content == [InlineText(content="#NoSpace")]
 
 
 def test_header_empty_content():
@@ -68,31 +68,34 @@ def test_header_level_seven_becomes_paragraph():
     result = tokenize("####### Seven hashes")
     assert len(result) == 1
     assert isinstance(result[0], Paragraph)
-    assert result[0].content == [Text(content="####### Seven hashes")]
+    assert result[0].content == [InlineText(content="####### Seven hashes")]
 
 
 def test_single_newline_stays_in_paragraph():
     result = tokenize("Line one\nLine two")
     assert len(result) == 1
     assert isinstance(result[0], Paragraph)
-    assert result[0].content == [Text(content="Line one\nLine two")]
+    assert result[0].content == [InlineText(content="Line one\nLine two")]
 
 
 def test_multiple_blank_lines():
     result = tokenize("First\n\n\n\nSecond")
     assert len(result) == 2
-    assert result[0].content == [Text(content="First")]
-    assert result[1].content == [Text(content="Second")]
+    assert result[0].content == [InlineText(content="First")]
+    assert result[1].content == [InlineText(content="Second")]
 
 
 def test_leading_trailing_whitespace_ignored():
     result = tokenize("\n\nContent\n\n")
     assert len(result) == 1
-    assert result[0].content == [Text(content="Content")]
+    assert result[0].content == [InlineText(content="Content")]
 
 
 def test_paragraph_with_italic():
     result = tokenize("hello *world*")
     assert len(result) == 1
     assert isinstance(result[0], Paragraph)
-    assert result[0].content == [Text(content="hello "), Italic(content="world")]
+    assert result[0].content == [
+        InlineText(content="hello "),
+        InlineText(content="world", styles=frozenset({Italic()})),
+    ]

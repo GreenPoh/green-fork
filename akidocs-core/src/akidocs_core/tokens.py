@@ -1,33 +1,37 @@
 from dataclasses import dataclass
 
 
-@dataclass
-class Text:
-    content: str
+class Style:
+    """Marker base class for inline styles."""
+
+    pass
+
+
+@dataclass(frozen=True)
+class Bold(Style):
+    pass
+
+
+@dataclass(frozen=True)
+class Italic(Style):
+    pass
 
 
 @dataclass
-class Italic:
+class InlineText:
     content: str
-
-
-@dataclass
-class Bold:
-    content: str
-
-
-InlineToken = Text | Italic | Bold
+    styles: frozenset[Style] = frozenset()
 
 
 @dataclass
 class Header:
     level: int
-    content: list[InlineToken]
+    content: list[InlineText]
 
 
 @dataclass
 class Paragraph:
-    content: list[InlineToken]
+    content: list[InlineText]
 
 
 Token = Header | Paragraph
