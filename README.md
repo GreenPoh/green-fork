@@ -13,6 +13,7 @@ Takes in a Markdown file, parses it, and outputs it as a PDF
 - Usable as a CLI tool (`aki`)
   - `-h` or `--help` for help information
   - `-v` or `--version` for version information
+  - `-O` or `--open` to open the PDF after creation
 
 ## Prerequisites
 **Requires uv**, if not installed follow https://docs.astral.sh/uv/getting-started/installation/
@@ -28,6 +29,10 @@ Go to GitHub Releases (https://github.com/AkiPoh/akidocs/releases) and follow th
 # Usage after installed globally
 # Convert Markdown to PDF
 aki input.md output.pdf
+
+# Convert and open in default application
+aki input.md output.pdf --open  # or:
+aki input.md output.pdf -O
 
 # Show help
 aki --help  # or:
