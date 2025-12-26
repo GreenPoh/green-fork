@@ -11,9 +11,7 @@ def _find_closing(text: str, delim: str, start: int) -> int:
     """Find closing delimiter, skipping nested sections."""
     i = start
     while i < len(text):
-        # Check for our closing delimiter
         if text[i : i + len(delim)] == delim:
-            # Only defer to longer delimiter if it can actually close
             longer_valid = False
             for check_delim, _ in DELIMITERS:
                 if len(check_delim) <= len(delim):
@@ -28,7 +26,6 @@ def _find_closing(text: str, delim: str, start: int) -> int:
             if not longer_valid:
                 return i
 
-        # Check for other delimiters to skip
         skipped = False
         for check_delim, _ in DELIMITERS:
             if check_delim == delim:
@@ -57,6 +54,7 @@ def tokenize_inline(
 
     while i < len(text):
         matched = False
+        longest_failed = 0
 
         for delim, styles in DELIMITERS:
             if text[i : i + len(delim)] != delim:
@@ -64,7 +62,12 @@ def tokenize_inline(
 
             end = _find_closing(text, delim, i + len(delim))
             if end == -1:
-                break
+                longest_failed = max(longest_failed, len(delim))
+                continue
+
+            # Reject if closer is within the range a longer delimiter claimed
+            if end + len(delim) <= i + longest_failed:
+                continue
 
             if current:
                 tokens.append(InlineText(content=current, styles=inherited_styles))
@@ -72,8 +75,12 @@ def tokenize_inline(
 
             inner_content = text[i + len(delim) : end]
             combined_styles = inherited_styles | styles
-            inner_tokens = tokenize_inline(inner_content, combined_styles)
-            tokens.extend(inner_tokens)
+
+            if inner_content:
+                inner_tokens = tokenize_inline(inner_content, combined_styles)
+                tokens.extend(inner_tokens)
+            else:
+                tokens.append(InlineText(content="", styles=combined_styles))
 
             i = end + len(delim)
             matched = True
