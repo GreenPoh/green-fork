@@ -1,4 +1,6 @@
+import argparse
 import sys
+from importlib.metadata import version
 from pathlib import Path
 
 from akidocs_core.renderer import render_pdf
@@ -6,16 +8,30 @@ from akidocs_core.tokenizer import tokenize
 
 
 def main():
-    if len(sys.argv) < 3:
-        print("Usage: aki <input.md> <output.pdf>")
-        sys.exit(1)
+    pkg_version = version("akidocs-core")
 
-    input_path = Path(sys.argv[1])
-    output_path = Path(sys.argv[2])
+    parser = argparse.ArgumentParser(
+        prog="aki",
+        description=f"Convert Markdown files to PDF - akidocs-core {pkg_version}",
+    )
+    parser.add_argument(
+        "-v",
+        "--version",
+        action="version",
+        version=f"akidocs-core {pkg_version}",
+    )
+    parser.add_argument("input", help="Input Markdown file")
+    parser.add_argument("output", help="Output PDF file")
+
+    args = parser.parse_args()
+
+    input_path = Path(args.input)
+    output_path = Path(args.output)
 
     if not input_path.exists():
         print(f"Error: File not found: {input_path}")
         sys.exit(1)
+
     text = input_path.read_text(encoding="utf-8")
     tokens = tokenize(text)
     pdf_bytes = render_pdf(tokens)
