@@ -39,3 +39,13 @@ def test_bold_italic():
     assert result[0].content == "hello"
     assert Bold() in result[0].styles
     assert Italic() in result[0].styles
+
+
+def test_bold_containing_italic():
+    result = tokenize_inline("**bold *and italic* text**")
+    assert len(result) == 3
+    assert result[0] == InlineText(content="bold ", styles=frozenset({Bold()}))
+    assert result[1] == InlineText(
+        content="and italic", styles=frozenset({Bold(), Italic()})
+    )
+    assert result[2] == InlineText(content=" text", styles=frozenset({Bold()}))
