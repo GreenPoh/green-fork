@@ -23,6 +23,8 @@ Takes in a Markdown file, parses it, and outputs it as a PDF
     - `generic` (g) — balanced serif style, default
     - `modern` (m) — clean sans-serif, generous spacing
     - `regard` (r) — monospace, bold, enormous margins
+  - `-n` or `--non-interactive` to error instead of prompting when output file exists
+  - `-f` or `--force` to overwrite output file without prompting
 
 ## Prerequisites
 **Requires uv**, if not installed follow https://docs.astral.sh/uv/getting-started/installation/
@@ -35,6 +37,14 @@ Go to GitHub Releases (https://github.com/AkiPoh/akidocs/releases) and follow th
 
 ## Usage
 ```powershell
+# Show help
+aki --help  # or:
+aki -h
+
+# Show version
+aki --version  # or:
+aki -v
+
 # Usage after installed globally
 # Convert Markdown to PDF
 aki input.md output.pdf
@@ -52,13 +62,15 @@ aki input.md output.pdf --style m  # or:
 aki input.md output.pdf -s modern  #or:
 aki input.md output.pdf -s m
 
-# Show help
-aki --help  # or:
-aki -h
+# If output.pdf exists, you'll be prompted:
+#   output.pdf already exists. Overwrite? [y/N]
+# Enter y to proceed, anything else to abort
 
-# Show version
-aki --version  # or:
-aki -v
+# Skip the prompt in scripts
+aki input.md output.pdf --non-interactive  # errors if exists
+
+# Overwrites silently without prompting or erroring
+aki input.md output.pdf --force
 ```
 
 ## Development

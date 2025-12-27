@@ -31,6 +31,9 @@ uv tool install git+https://github.com/AkiPoh/akidocs.git@v0.1.0-alpha#subdirect
   - `generic` (g) — balanced serif style, default
   - `modern` (m) — clean sans-serif, generous spacing
   - `regard` (r) — monospace, bold, enormous margins
+- Trying to overwrite a file that already exists now prompts for confirmation
+- `-n` or `--non-interactive` to error instead of prompting when trying to overwrite
+- `-f` or `--force` to overwrite output without prompting or erroring
 
 #### What's New Internally
 - Considerable refacors throughout codebase
