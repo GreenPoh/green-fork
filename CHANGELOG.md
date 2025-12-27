@@ -28,8 +28,8 @@ uv tool install git+https://github.com/AkiPoh/akidocs.git@v0.1.0-alpha#subdirect
 ### Akidocs - 0.2.0.dev0 - UNDER DEVELOPMENT
 #### What's New
 - `-s` or `--style` to select document style, for example `--style generic`
-  - `generic` (g) — balanced serif style, default
-  - `modern` (m) — clean sans-serif, generous spacing
+  - `generic` (g) — clean sans-serif, default
+  - `times` (t) — balanced serif style
   - `regard` (r) — monospace, bold, enormous margins
 - Trying to overwrite a file that already exists now prompts for confirmation
 - `-n` or `--non-interactive` to error instead of prompting when trying to overwrite

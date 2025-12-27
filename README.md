@@ -20,8 +20,8 @@ Takes in a Markdown file, parses it, and outputs it as a PDF
   - `-v` or `--version` for version information
   - `-o` or `--open` to open the PDF after creation
   - `-s` or `--style` to select document style, for example `--style generic`
-    - `generic` (g) — balanced serif style, default
-    - `modern` (m) — clean sans-serif, generous spacing
+    - `generic` (g) — clean sans-serif, default
+    - `times` (t) — balanced serif style
     - `regard` (r) — monospace, bold, enormous margins
   - `-n` or `--non-interactive` to error instead of prompting when output file exists
   - `-f` or `--force` to overwrite output file without prompting
@@ -56,7 +56,7 @@ aki input.md output.pdf -o
 
 # Convert and open in default application
 # with chosen style, available: generic / g,
-# modern / m, regard / r
+# times / t, regard / r
 aki input.md output.pdf --style modern  # or:
 aki input.md output.pdf --style m  # or:
 aki input.md output.pdf -s modern  #or:
