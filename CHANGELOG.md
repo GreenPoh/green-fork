@@ -32,6 +32,11 @@ uv tool install git+https://github.com/AkiPoh/akidocs.git@v0.1.0-alpha#subdirect
   - `modern` (m) — clean sans-serif, generous spacing
   - `regard` (r) — monospace, bold, enormous margins
 
+#### What's New Internally
+- Considerable refacors throughout codebase
+- Styles now have their own module `styles.py` with dataclass from `style_base.py`
+- Styles now have margins
+
 ### Akidocs - v0.1.0-alpha / 0.1.0a0 - 2025-12-26
 #### What's New
 - Inline text formatting
