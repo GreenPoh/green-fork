@@ -105,12 +105,9 @@ def test_cli_style(tmp_path, flag, style):
     run_cli_with_files(tmp_path, flag, style)
 
 
-def test_overwrite_prompt_decline(tmp_path):
+def test_overwrite_prompt_decline(overwrite_files):
     """Declining overwrite prompt should exit with error."""
-    input_file = tmp_path / "test.md"
-    output_file = tmp_path / "test.pdf"
-    input_file.write_text("# Hello")
-    output_file.write_text("existing content")
+    input_file, output_file = overwrite_files
     original_content = output_file.read_bytes()
 
     result = run_cli(str(input_file), str(output_file), input="n\n")
@@ -119,12 +116,9 @@ def test_overwrite_prompt_decline(tmp_path):
     assert output_file.read_bytes() == original_content
 
 
-def test_overwrite_prompt_accept(tmp_path):
+def test_overwrite_prompt_accept(overwrite_files):
     """Accepting overwrite prompt should proceed."""
-    input_file = tmp_path / "test.md"
-    output_file = tmp_path / "test.pdf"
-    input_file.write_text("# Hello")
-    output_file.write_text("existing content")
+    input_file, output_file = overwrite_files
 
     result = run_cli(str(input_file), str(output_file), input="y\n")
 
@@ -133,12 +127,9 @@ def test_overwrite_prompt_accept(tmp_path):
     assert output_file.read_bytes() != b"existing content"
 
 
-def test_non_interactive_errors_on_existing_file(tmp_path):
+def test_non_interactive_errors_on_existing_file(overwrite_files):
     """--non-interactive should error instead of prompting."""
-    input_file = tmp_path / "test.md"
-    output_file = tmp_path / "test.pdf"
-    input_file.write_text("# Hello")
-    output_file.write_text("existing content")
+    input_file, output_file = overwrite_files
     original_content = output_file.read_bytes()
 
     result = run_cli(str(input_file), str(output_file), "--non-interactive")
@@ -148,12 +139,9 @@ def test_non_interactive_errors_on_existing_file(tmp_path):
     assert output_file.read_bytes() == original_content
 
 
-def test_non_interactive_short_flag(tmp_path):
+def test_non_interactive_short_flag(overwrite_files):
     """Short flag -n should work same as --non-interactive."""
-    input_file = tmp_path / "test.md"
-    output_file = tmp_path / "test.pdf"
-    input_file.write_text("# Hello")
-    output_file.write_text("existing content")
+    input_file, output_file = overwrite_files
 
     result = run_cli(str(input_file), str(output_file), "-n")
 
@@ -161,12 +149,9 @@ def test_non_interactive_short_flag(tmp_path):
     assert "exists" in result.stdout.lower() or "exists" in result.stderr.lower()
 
 
-def test_force_overwrites_without_prompt(tmp_path):
+def test_force_overwrites_without_prompt(overwrite_files):
     """--force should overwrite without prompting."""
-    input_file = tmp_path / "test.md"
-    output_file = tmp_path / "test.pdf"
-    input_file.write_text("# Hello")
-    output_file.write_text("existing content")
+    input_file, output_file = overwrite_files
 
     result = run_cli(str(input_file), str(output_file), "--force")
 
@@ -184,12 +169,9 @@ def test_force_short_flag(overwrite_files):
     assert output_file.read_bytes() != b"existing content"
 
 
-def test_force_overrides_non_interactive(tmp_path):
+def test_force_overrides_non_interactive(overwrite_files):
     """--force should override --non-interactive and succeed."""
-    input_file = tmp_path / "test.md"
-    output_file = tmp_path / "test.pdf"
-    input_file.write_text("# Hello")
-    output_file.write_text("existing content")
+    input_file, output_file = overwrite_files
 
     result = run_cli(str(input_file), str(output_file), "-n", "-f")
 
