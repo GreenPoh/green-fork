@@ -38,10 +38,11 @@ uv tool install git+https://github.com/AkiPoh/akidocs.git@v0.1.0-alpha#subdirect
 - Added CHANGELOG.md for tracking version history
 
 #### What's New Internally
-- Considerable refacors throughout codebase
+- Considerable refactors throughout codebase
 - Styles now have their own module `styles.py` with dataclass from `style_base.py`
 - Styles now have configuration for edge margins and base font style
 - Standardized internal measurements to millimeters, converting to points only at boundaries where relevant
+- Total number of tests: 
 
 ### Akidocs - v0.1.0-alpha / 0.1.0a0 - 2025-12-26
 #### What's New

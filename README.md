@@ -81,8 +81,8 @@ cd ./akidocs-core
 uv sync
 # Install package in editable mode
 uv pip install -e .
-# Run tests
-uv run python -m pytest
+# Run tests (-v for showing individual test results)
+uv run python -m pytest -v
 # Output test PDF and open it
 uv run python -m akidocs_core test.md output.pdf -o
 ```
