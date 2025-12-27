@@ -42,6 +42,12 @@ def main():
         action="store_true",
         help="Never prompt; error if output file exists",
     )
+    parser.add_argument(
+        "-f",
+        "--force",
+        action="store_true",
+        help="Overwrite output file without prompting or erroring",
+    )
     parser.add_argument("input", help="Input Markdown file")
     parser.add_argument("output", help="Output PDF file")
 
@@ -54,7 +60,7 @@ def main():
         print(f"Error: File not found: {input_path}")
         sys.exit(1)
 
-    if output_path.exists():
+    if output_path.exists() and not args.force:
         if args.non_interactive:
             print(f"Error: {output_path} already exists")
             sys.exit(1)
