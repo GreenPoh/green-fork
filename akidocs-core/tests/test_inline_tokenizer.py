@@ -75,4 +75,4 @@ def test_unclosed_bold():
 
 def test_empty_bold():
     result = tokenize_inline("****")
-    assert result == [InlineText(content="", styles=frozenset({Bold()}))]
+    assert result == [InlineText(content="", styles=BOLD)]
