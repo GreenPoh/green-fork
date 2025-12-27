@@ -189,3 +189,14 @@ def test_cli_output_shows_style_info(tmp_path):
     result = run_cli(str(input_file), str(output_file))
 
     assert "From test.md (Helvetica, generic) to test.pdf" in result.stdout
+
+
+def test_cli_output_shows_long_style_name(tmp_path):
+    """Output should show long style name even when short flag used."""
+    input_file = tmp_path / "test.md"
+    output_file = tmp_path / "test.pdf"
+    input_file.write_text("# Hello")
+
+    result = run_cli(str(input_file), str(output_file), "-s", "g")
+
+    assert "(Helvetica, generic)" in result.stdout
