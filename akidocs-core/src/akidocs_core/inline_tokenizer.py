@@ -7,24 +7,26 @@ DELIMITERS: list[tuple[str, frozenset[Style]]] = [
 ]
 
 
+def _claimed_by_longer(text: str, delim: str, pos: int) -> bool:
+    """Check if a longer delimiter claims this position."""
+    for check_delim, _ in DELIMITERS:
+        if len(check_delim) <= len(delim):
+            continue
+        if text[pos : pos + len(check_delim)] != check_delim:
+            continue
+        if _find_closing(text, check_delim, pos + len(check_delim)) != -1:
+            return True
+    return False
+
+
 def _find_closing(text: str, delim: str, start: int) -> int:
     """Find closing delimiter, skipping nested sections."""
     i = start
     while i < len(text):
         if text[i : i + len(delim)] == delim:
-            claimed_by_longer = False
-            for check_delim, _ in DELIMITERS:
-                if len(check_delim) <= len(delim):
-                    continue
-                if text[i : i + len(check_delim)] != check_delim:
-                    continue
-                close = _find_closing(text, check_delim, i + len(check_delim))
-                if close != -1:
-                    claimed_by_longer = True
-                    break
-
-            if not claimed_by_longer:
-                return i
+            if text[i : i + len(delim)] == delim:
+                if not _claimed_by_longer(text, delim, i):
+                    return i
 
         skipped_nested_section = False
         for check_delim, _ in DELIMITERS:
