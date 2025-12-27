@@ -46,21 +46,13 @@ def test_cli_version_long_flag():
 
 
 def test_cli_version_short_flag():
-    result = subprocess.run(
-        ["uv", "run", "python", "-m", "akidocs_core", "-v"],
-        capture_output=True,
-        text=True,
-    )
+    result = run_cli("-v")
     assert result.returncode == 0
     assert f"akidocs-core {version('akidocs-core')}" in result.stdout
 
 
 def test_cli_help_long_flag():
-    result = subprocess.run(
-        ["uv", "run", "python", "-m", "akidocs_core", "--help"],
-        capture_output=True,
-        text=True,
-    )
+    result = run_cli("--help")
     assert result.returncode == 0
     assert version("akidocs-core") in result.stdout
     assert "input" in result.stdout.lower()
@@ -68,11 +60,7 @@ def test_cli_help_long_flag():
 
 
 def test_cli_help_short_flag():
-    result = subprocess.run(
-        ["uv", "run", "python", "-m", "akidocs_core", "-h"],
-        capture_output=True,
-        text=True,
-    )
+    result = run_cli("-h")
     assert result.returncode == 0
     assert version("akidocs-core") in result.stdout
     assert "input" in result.stdout.lower()
