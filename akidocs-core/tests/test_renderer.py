@@ -2,6 +2,12 @@ from akidocs_core.renderer import render_pdf
 from akidocs_core.tokens import Bold, Header, InlineText, Italic, Paragraph
 
 
+def assert_valid_pdf_bytes(result: bytes) -> None:
+    """Assert that result is non-empty PDF bytes."""
+    assert isinstance(result, bytes)
+    assert len(result) > 0
+
+
 def test_render_returns_bytes():
     tokens = [Paragraph(content=[InlineText(content="Hello")])]
     result = render_pdf(tokens)
@@ -15,8 +21,7 @@ def test_render_handles_headers():
         Paragraph(content=[InlineText(content="Body text")]),
     ]
     result = render_pdf(tokens)
-    assert isinstance(result, bytes)
-    assert len(result) > 0
+    assert_valid_pdf_bytes(result)
 
 
 def test_render_handles_italic():
@@ -29,8 +34,7 @@ def test_render_handles_italic():
         )
     ]
     result = render_pdf(tokens)
-    assert isinstance(result, bytes)
-    assert len(result) > 0
+    assert_valid_pdf_bytes(result)
 
 
 def test_render_handles_bold():
@@ -43,5 +47,4 @@ def test_render_handles_bold():
         )
     ]
     result = render_pdf(tokens)
-    assert isinstance(result, bytes)
-    assert len(result) > 0
+    assert_valid_pdf_bytes(result)
