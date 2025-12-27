@@ -18,3 +18,8 @@ GENERIC = Style(
     header_margin_after=pt(8),
     paragraph_margin_after=pt(4),
 )
+
+STYLES = {
+    "generic": GENERIC,
+    "g": GENERIC,
+}
