@@ -2,6 +2,22 @@ from akidocs_core.inline_tokenizer import tokenize_inline
 from akidocs_core.tokens import Header, Paragraph, Token
 
 
+def try_parse_header(block: str) -> Header | None:
+    if not block.startswith("#"):
+        return None
+
+    stripped = block.lstrip("#")
+    level = len(block) - len(stripped)
+
+    if level > 6:
+        return None
+
+    if stripped != "" and not stripped.startswith(" "):
+        return None
+
+    return Header(level=level, content=tokenize_inline(stripped.strip()))
+
+
 def tokenize(text: str) -> list[Token]:
     text = text.replace("\r\n", "\n")
 
@@ -16,15 +32,11 @@ def tokenize(text: str) -> list[Token]:
         if block == "":
             continue
 
-        if block.startswith("#"):
-            stripped = block.lstrip("#")
-            level = len(block) - len(stripped)
-            if level <= 6 and (stripped == "" or stripped.startswith(" ")):
-                content = stripped.strip()
-                tokens.append(Header(level=level, content=tokenize_inline(content)))
-            else:
-                tokens.append(Paragraph(content=tokenize_inline(block)))
-        else:
-            tokens.append(Paragraph(content=tokenize_inline(block)))
+        header = try_parse_header(block)
+        if header:
+            tokens.append(header)
+            continue
+
+        tokens.append(Paragraph(content=tokenize_inline(block)))
 
     return tokens
