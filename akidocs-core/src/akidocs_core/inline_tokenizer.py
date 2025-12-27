@@ -19,29 +19,31 @@ def _claimed_by_longer(text: str, delim: str, pos: int) -> bool:
     return False
 
 
+def _skip_nested_at(text: str, delim: str, pos: int) -> int | None:
+    """If a different delimiter opens here and closes, return position after it."""
+    for check_delim, _ in DELIMITERS:
+        if check_delim == delim:
+            continue
+        if text[pos : pos + len(check_delim)] != check_delim:
+            continue
+        close = _find_closing(text, check_delim, pos + len(check_delim))
+        if close != -1:
+            return close + len(check_delim)
+    return None
+
+
 def _find_closing(text: str, delim: str, start: int) -> int:
     """Find closing delimiter, skipping nested sections."""
     i = start
     while i < len(text):
         if text[i : i + len(delim)] == delim:
-            if text[i : i + len(delim)] == delim:
-                if not _claimed_by_longer(text, delim, i):
-                    return i
+            if not _claimed_by_longer(text, delim, i):
+                return i
 
-        skipped_nested_section = False
-        for check_delim, _ in DELIMITERS:
-            if check_delim == delim:
-                continue
-            if text[i : i + len(check_delim)] != check_delim:
-                continue
-
-            close = _find_closing(text, check_delim, i + len(check_delim))
-            if close != -1:
-                i = close + len(check_delim)
-                skipped_nested_section = True
-                break
-
-        if not skipped_nested_section:
+        skipped_to = _skip_nested_at(text, delim, i)
+        if skipped_to is not None:
+            i = skipped_to
+        else:
             i += 1
 
     return -1
