@@ -1,110 +1,139 @@
-from akidocs_core.tokens import Bold, InlineStyle, InlineText, Italic
+from akidocs_core.tokens import Bold, InlineStyles, InlineText, Italic
 
-DELIMITERS: list[tuple[str, frozenset[InlineStyle]]] = [
+DELIMITERS: list[tuple[str, frozenset[InlineStyles]]] = [
     ("***", frozenset({Bold(), Italic()})),
     ("**", frozenset({Bold()})),
     ("*", frozenset({Italic()})),
 ]
 
 
-def _claimed_by_longer(text: str, delim: str, pos: int) -> bool:
-    """Check if a longer delimiter claims this position."""
+def _claimed_by_longer(text: str, provided_delim: str, pos: int) -> bool:
+    """Check if in this position a longer delimiter has valid claim."""
     for check_delim, _ in DELIMITERS:
-        if len(check_delim) <= len(delim):
+        # If check_delim is shorter than provided_delim
+        if len(check_delim) <= len(provided_delim):
             continue
+        # If no check_delim at this position
         if text[pos : pos + len(check_delim)] != check_delim:
             continue
+        # If longer delimiter has valid pair, recursive to _find_closing
         if _find_closing(text, check_delim, pos + len(check_delim)) != -1:
             return True
     return False
 
 
-def _skip_nested_at(text: str, delim: str, pos: int) -> int | None:
-    """If a different delimiter opens here and closes, return position after it."""
+def _skip_nested_at(text: str, provided_delim: str, pos: int) -> int | None:
+    """When searching for closing delimiter, skip over nested sections that use different delimiter."""
     for check_delim, _ in DELIMITERS:
-        if check_delim == delim:
+        # If check_delim is provided_delim, then skip
+        if check_delim == provided_delim:
             continue
+        # If no match found for check_delim, then skip
         if text[pos : pos + len(check_delim)] != check_delim:
             continue
+        # If this delimiter has a valid closer, recursive
         close = _find_closing(text, check_delim, pos + len(check_delim))
         if close != -1:
+            # Then return position after closing delimiter
             return close + len(check_delim)
+    # No valid nested section found to be starting at current position
     return None
 
 
-def _find_closing(text: str, delim: str, start: int) -> int:
-    """Find closing delimiter, skipping nested sections."""
-    i = start
-    while i < len(text):
-        if text[i : i + len(delim)] == delim:
-            if not _claimed_by_longer(text, delim, i):
-                return i
+def _find_closing(text: str, delim: str, content_start_pos: int) -> int:
+    """Find closing delimiter's starting position, skipping nested sections."""
+    current_pos = content_start_pos
+    while current_pos < len(text):
+        # If found potential closing delimiter
+        if text[current_pos : current_pos + len(delim)] == delim:
+            # If not claimed by longer
+            if not _claimed_by_longer(text, delim, current_pos):
+                return current_pos
 
-        skipped_to = _skip_nested_at(text, delim, i)
-        if skipped_to is not None:
-            i = skipped_to
+        # Check if different delimiter opens and closes at this position
+        skip_to_pos = _skip_nested_at(text, delim, current_pos)
+        if skip_to_pos is not None:
+            current_pos = skip_to_pos
         else:
-            i += 1
+            current_pos += 1
 
     return -1
 
 
 def _find_styled_section(
     text: str, pos: int
-) -> tuple[str, frozenset[InlineStyle], int] | None:
-    """Find a styled section starting at pos. Returns (delim, styles, end_pos) or None."""
-    failed_opening_len = 0
+) -> tuple[str, frozenset[InlineStyles], int] | None:
+    """Find a styled section that STARTS at pos. Returns (delim, inline_styles, end_pos) or None."""
+    # Longest delimiter that opened, but failed to close
+    longest_failed_opener_len = 0
 
-    for delim, styles in DELIMITERS:
+    # Iterate in correct order, as specified by DELIMITERS
+    for delim, inline_styles in DELIMITERS:
+        # If current delimiter, does not find match at current position
         if text[pos : pos + len(delim)] != delim:
             continue
 
-        end = _find_closing(text, delim, pos + len(delim))
-        if end == -1:
-            failed_opening_len = max(failed_opening_len, len(delim))
+        # Search for matching closer delimiter
+        content_end_pos = _find_closing(text, delim, pos + len(delim))
+        # If none found, record as failed, if longer than previous failed
+        if content_end_pos == -1:
+            longest_failed_opener_len = max(longest_failed_opener_len, len(delim))
             continue
 
-        if end + len(delim) <= pos + failed_opening_len:
+        # Closer falls within longest failed opener
+        # Prevents ** from parsing as italic that wraps nothing
+        if content_end_pos + len(delim) <= pos + longest_failed_opener_len:
             continue
 
-        return (delim, styles, end)
+        return delim, inline_styles, content_end_pos
 
     return None
 
 
 def tokenize_inline(
-    text: str, inherited_styles: frozenset[InlineStyle] = frozenset()
+    text: str, inherited_styles: frozenset[InlineStyles] = frozenset()
 ) -> list[InlineText]:
-    tokens: list[InlineText] = []
+    inline_tokens: list[InlineText] = []
     text_buffer = ""
-    i = 0
+    pos = 0
 
-    while i < len(text):
-        section = _find_styled_section(text, i)
+    while pos < len(text):
+        section = _find_styled_section(text, pos)
 
+        # No match for style in section
         if section is None:
-            text_buffer += text[i]
-            i += 1
+            text_buffer += text[pos]
+            pos += 1
             continue
 
-        delim, styles, end = section
+        # Styled section was found, unpack section
+        delim, styles, content_end_pos = section
 
+        # Add accumulated text buffer to inline_tokens, and flush text buffer
         if text_buffer:
-            tokens.append(InlineText(content=text_buffer, styles=inherited_styles))
+            inline_tokens.append(
+                InlineText(content=text_buffer, styles=inherited_styles)
+            )
             text_buffer = ""
 
-        inner_content = text[i + len(delim) : end]
+        # Extract content between delimiters
+        inner_content = text[pos + len(delim) : content_end_pos]
+        # Combine new styles and inherited styles
         combined_styles = inherited_styles | styles
 
+        # Recursive call, to parse inner content for nested styles
         if inner_content:
-            inner_tokens = tokenize_inline(inner_content, combined_styles)
-            tokens.extend(inner_tokens)
+            inner_inline_tokens = tokenize_inline(inner_content, combined_styles)
+            inline_tokens.extend(inner_inline_tokens)
+        # If section is empty, emit empty token with the styles
         else:
-            tokens.append(InlineText(content="", styles=combined_styles))
+            inline_tokens.append(InlineText(content="", styles=combined_styles))
 
-        i = end + len(delim)
+        # Move position past closing delimiter
+        pos = content_end_pos + len(delim)
 
+    # After loop, add accumulated text buffer to inline_tokens, and flush text buffer
     if text_buffer:
-        tokens.append(InlineText(content=text_buffer, styles=inherited_styles))
+        inline_tokens.append(InlineText(content=text_buffer, styles=inherited_styles))
 
-    return tokens
+    return inline_tokens
